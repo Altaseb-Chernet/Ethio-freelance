@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Eye, EyeOff, Mail, Lock, User, Briefcase, UserCheck, ArrowRight } from 'lucide-react'
+import OTPVerification from '../components/OTPVerification'
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -15,8 +16,10 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showOTPVerification, setShowOTPVerification] = useState(false)
+  const [pendingEmail, setPendingEmail] = useState('')
 
-  const { register } = useAuth()
+  const { register, verifyOTP, resendOTP } = useAuth()
   const navigate = useNavigate()
 
   const handleChange = (e) => {
@@ -35,13 +38,38 @@ const Register = () => {
     const result = await register(formData)
 
     if (result.success) {
-      navigate('/dashboard')
+      setPendingEmail(formData.email)
+      setShowOTPVerification(true)
     } else {
       setError(result.message)
     }
     setLoading(false)
   }
 
+  const handleOTPVerify = async (otp) => {
+    const result = await verifyOTP(pendingEmail, otp)
+    
+    if (result.success) {
+      navigate('/dashboard')
+    } else {
+      alert(result.message)
+    }
+  }
+
+  const handleOTPResend = async () => {
+    return await resendOTP(pendingEmail)
+  }
+
+  if (showOTPVerification) {
+    return (
+      <OTPVerification
+        email={pendingEmail}
+        onVerify={handleOTPVerify}
+        onBack={() => setShowOTPVerification(false)}
+        onResend={handleOTPResend}
+      />
+    )
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">

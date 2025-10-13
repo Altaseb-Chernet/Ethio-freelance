@@ -55,23 +55,48 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (userData) => {
-  try {
-    const response = await api.post("/auth/register", userData);
-    const { token: newToken, user: newUser } = response.data.data;
+    const register = async (userData) => {
+    try {
+      const response = await axios.post('/api/auth/register', userData);
+      return response.data;
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Registration failed'
+      };
+    }
+  };
 
-    localStorage.setItem("token", newToken);
-    setToken(newToken);
-    setUser(newUser);
+  const verifyOTP = async (email, otp) => {
+    try {
+      const response = await axios.post('/api/auth/verify-otp', { email, otp });
+      
+      if (response.data.success) {
+        const { user: userData, token } = response.data.data;
+        localStorage.setItem('token', token);
+        setUser(userData);
+      }
+      
+      return response.data;
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'OTP verification failed'
+      };
+    }
+  };
 
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      message: error.response?.data?.message || "Registration failed",
-    };
-  }
-};
+  const resendOTP = async (email) => {
+    try {
+      const response = await axios.post('/api/auth/resend-otp', { email });
+      return response.data;
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to resend OTP'
+      };
+    }
+  };
 
 
   const logout = () => {
