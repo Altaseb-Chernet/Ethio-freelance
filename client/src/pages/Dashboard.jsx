@@ -1,4 +1,4 @@
-// client/src/pages/Dashboard.jsx - Update the jobs section
+// client/src/pages/Dashboard.jsx
 import React from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -12,7 +12,9 @@ import {
   CheckCircle,
   X,
   Users,
-  FileText
+  FileText,
+  Plus,
+  Search
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -36,7 +38,7 @@ const Dashboard = () => {
   const { data: contractsData } = useQuery({
     queryKey: ['contracts'],
     queryFn: () => chatAPI.getContracts(),
-    enabled: isAuthenticated
+    enabled: !!user // Use user object to check if authenticated
   })
 
   const acceptBidMutation = useMutation({
@@ -54,7 +56,17 @@ const Dashboard = () => {
     }
   }
 
-  // ... rest of the component
+  // If user is not authenticated, show loading or redirect
+  if (!user) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -110,7 +122,7 @@ const Dashboard = () => {
                       {/* Job Actions */}
                       <div className="flex items-center justify-between mt-4">
                         <div className="flex items-center space-x-4 text-sm text-gray-500">
-                          <span>{job.skillsRequired.slice(0, 3).join(', ')}</span>
+                          <span>{job.skillsRequired?.slice(0, 3).join(', ') || 'No skills specified'}</span>
                           <span>{job.duration}</span>
                         </div>
                         <div className="flex space-x-2">
@@ -145,6 +157,16 @@ const Dashboard = () => {
                       )}
                     </div>
                   ))}
+
+                  {(!jobsData?.data.data.jobs || jobsData.data.data.jobs.length === 0) && (
+                    <div className="text-center py-8 text-gray-500">
+                      <Briefcase className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                      <p>No jobs posted yet</p>
+                      <Link to="/create-job" className="btn-primary mt-4">
+                        Post Your First Job
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -209,7 +231,7 @@ const Dashboard = () => {
                           bid.status === 'rejected' ? 'badge-error' :
                           'badge-warning'
                         }`}>
-                          {bid.status}
+                          {bid.status || 'pending'}
                         </div>
                       </div>
                     </div>
@@ -237,6 +259,16 @@ const Dashboard = () => {
                     </div>
                   </div>
                 ))}
+
+                {(!bidsData?.data.data.bids || bidsData.data.data.bids.length === 0) && (
+                  <div className="text-center py-8 text-gray-500">
+                    <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <p>No proposals submitted yet</p>
+                    <Link to="/search" className="btn-primary mt-4">
+                      Find Jobs to Bid On
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -275,6 +307,41 @@ const Dashboard = () => {
                   <MessageSquare className="w-8 h-8 text-gray-300 mx-auto mb-2" />
                   <p className="text-sm">No active contracts</p>
                 </div>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="card p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Stats</h2>
+            <div className="space-y-3">
+              {isClient && (
+                <>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Jobs Posted</span>
+                    <span className="font-semibold">{jobsData?.data.data.jobs?.length || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Active Contracts</span>
+                    <span className="font-semibold">
+                      {contractsData?.data.data.contracts?.filter(c => c.status === 'active').length || 0}
+                    </span>
+                  </div>
+                </>
+              )}
+              {isFreelancer && (
+                <>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Active Proposals</span>
+                    <span className="font-semibold">{bidsData?.data.data.bids?.length || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Active Contracts</span>
+                    <span className="font-semibold">
+                      {contractsData?.data.data.contracts?.filter(c => c.status === 'active').length || 0}
+                    </span>
+                  </div>
+                </>
               )}
             </div>
           </div>
