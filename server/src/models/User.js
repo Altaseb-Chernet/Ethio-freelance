@@ -20,6 +20,15 @@ const userSchema = new mongoose.Schema({
     enum: ['client', 'freelancer', 'admin'],
     required: true
   },
+    otp: {
+    code: String,
+    expiresAt: Date
+  },
+  resetToken: {
+    token: String,
+    expiresAt: Date
+  },
+  
   profile: {
     firstName: String,
     lastName: String,
