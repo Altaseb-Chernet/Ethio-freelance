@@ -224,8 +224,8 @@ const forgotPassword = async (req, res) => {
     const otp = emailService.generateOTP();
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    user.otp = otp;
-    user.otpExpires = otpExpires;
+    // ✅ Correctly assign the object
+    user.otp = { code: otp, expiresAt: otpExpires };
     await user.save();
 
     await emailService.sendOTP(email, otp);
@@ -249,16 +249,16 @@ const resetPassword = async (req, res) => {
     if (!user)
       return res.status(404).json({ success: false, message: 'User not found' });
 
-    if (user.otp !== otp)
+    // ✅ Validate OTP correctly
+    if (!user.otp || user.otp.code !== otp)
       return res.status(400).json({ success: false, message: 'Invalid OTP' });
 
-    if (Date.now() > user.otpExpires)
+    if (Date.now() > user.otp.expiresAt)
       return res.status(400).json({ success: false, message: 'OTP expired' });
 
-    // Update password and clear OTP
+    // ✅ Update password and clear OTP
     user.password = newPassword;
-    user.otp = undefined;
-    user.otpExpires = undefined;
+    user.otp = { code: null, expiresAt: null };
     await user.save();
 
     res.json({ success: true, message: 'Password reset successfully' });
@@ -268,12 +268,59 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const jwt = require('jsonwebtoken'); // make sure this is installed
+
+const googleLogin = async (req, res) => {
+  try {
+    const { email, name, uid } = req.body;
+
+    if (!email || !uid) {
+      return res.status(400).json({ success: false, message: "Missing email or UID" });
+    }
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Create new user if not exists
+      user = new User({
+        email,
+        profile: { firstName: name },
+        role: 'freelancer', // default role
+        firebaseUid: uid,
+        isActive: true
+      });
+      await user.save();
+    }
+
+    // Generate token using your existing generateToken function or jwt directly
+    const token = generateToken({ userId: user._id, role: user.role });
+    // OR if you want to use jwt directly:
+    // const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+    res.json({
+      success: true,
+      data: {
+        user: {
+          id: user._id,
+          email: user.email,
+          role: user.role,
+          profile: user.profile
+        },
+        token
+      }
+    });
+  } catch (error) {
+    console.error('Google login error:', error);
+    res.status(500).json({ success: false, message: 'Error logging in with Google' });
+  }
+};
 
 module.exports = {
   register,
   verifyOTP,
   login,
   getMe,
-   forgotPassword,  
-  resetPassword,   
+  forgotPassword,
+  resetPassword,
+  googleLogin // ✅ export Google login
 };

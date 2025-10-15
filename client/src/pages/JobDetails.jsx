@@ -1,4 +1,5 @@
 // client/src/pages/JobDetails.jsx
+// client/src/pages/JobDetails.jsx
 import React, { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -54,19 +55,19 @@ const JobDetails = () => {
 
   const acceptBidMutation = useMutation({
     mutationFn: (bidId) => jobsAPI.acceptBid(job?._id, { bidId }),
-    onSuccess: (response) => {
+    onSuccess: () => {
       queryClient.invalidateQueries(['job', id])
       queryClient.invalidateQueries(['contracts'])
       navigate('/messages')
     },
-    onError: (error) => {
-      console.error('Failed to accept bid:', error)
-    }
+    onError: (error) => console.error('Failed to accept bid:', error)
   })
 
-  const job = jobData?.data.data.job
-  const bids = jobData?.data.data.bids || []
-  const hasUserBid = bids?.some(bid => bid.freelancerId._id === user?._id) || false
+  const job = jobData?.data?.data?.job
+  const bids = jobData?.data?.data?.bids || []
+
+  // ✅ Optional chaining to prevent null errors
+  const hasUserBid = bids?.some(bid => bid.freelancerId?._id === user?._id) || false
   const isClient = user?.role === 'client'
 
   const handleEnhanceProposal = () => {
@@ -142,7 +143,7 @@ const JobDetails = () => {
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold text-gray-900">
-              {job.budget.type === 'fixed' ? `$${job.budget.fixed}` : `$${job.budget.min}-$${job.budget.max}/hr`}
+              {job.budget?.type === 'fixed' ? `$${job.budget?.fixed}` : `$${job.budget?.min}-$${job.budget?.max}/hr`}
             </div>
             <div className="text-sm text-gray-500">Budget</div>
           </div>
@@ -164,7 +165,7 @@ const JobDetails = () => {
           <div className="card p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Required Skills</h2>
             <div className="flex flex-wrap gap-2">
-              {job.skillsRequired.map((skill, index) => (
+              {job.skillsRequired?.map((skill, index) => (
                 <span key={index} className="badge badge-primary">
                   {skill}
                 </span>
@@ -193,6 +194,7 @@ const JobDetails = () => {
               <div className="mb-6 p-6 border border-gray-200 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Submit Your Proposal</h3>
                 <form onSubmit={handleSubmitBid} className="space-y-4">
+                  {/* Proposal Input */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Your Proposal *
@@ -308,23 +310,23 @@ const JobDetails = () => {
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                         <span className="text-primary-600 font-medium text-sm">
-                          {bid.freelancerId.profile.firstName?.[0] || 'U'}
+                          {bid.freelancerId?.profile?.firstName?.[0] || 'U'}
                         </span>
                       </div>
                       <div>
                         <div className="font-medium text-gray-900">
-                          {bid.freelancerId.profile.firstName} {bid.freelancerId.profile.lastName}
+                          {bid.freelancerId?.profile?.firstName} {bid.freelancerId?.profile?.lastName}
                         </div>
                         <div className="flex items-center space-x-1 text-sm text-gray-500">
                           <Star className="w-4 h-4 text-yellow-400" />
-                          <span>{bid.freelancerId.rating?.average || 'No ratings'}</span>
+                          <span>{bid.freelancerId?.rating?.average ?? 'No ratings'}</span>
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-lg font-bold text-gray-900">${bid.price}</div>
                       <div className="text-sm text-gray-500">
-                        {bid.estimatedTime.value} {bid.estimatedTime.unit}
+                        {bid.estimatedTime?.value} {bid.estimatedTime?.unit}
                       </div>
                     </div>
                   </div>
@@ -349,7 +351,7 @@ const JobDetails = () => {
                         Reject
                       </button>
                       <Link
-                        to={`/profile/${bid.freelancerId._id}`}
+                        to={`/profile/${bid.freelancerId?._id}`}
                         className="btn-ghost text-sm px-4 py-2"
                       >
                         View Profile
@@ -393,16 +395,16 @@ const JobDetails = () => {
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
                 <span className="text-primary-600 font-medium">
-                  {job.clientId.profile.firstName?.[0] || 'C'}
+                  {job.clientId?.profile?.firstName?.[0] || 'C'}
                 </span>
               </div>
               <div>
                 <div className="font-medium text-gray-900">
-                  {job.clientId.profile.firstName} {job.clientId.profile.lastName}
+                  {job.clientId?.profile?.firstName} {job.clientId?.profile?.lastName}
                 </div>
                 <div className="flex items-center space-x-1 text-sm text-gray-500">
                   <Star className="w-4 h-4 text-yellow-400" />
-                  <span>{job.clientId.rating?.average || 'No ratings'}</span>
+                  <span>{job.clientId?.rating?.average ?? 'No ratings'}</span>
                 </div>
               </div>
             </div>
@@ -415,12 +417,12 @@ const JobDetails = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">Budget</span>
                 <span className="font-medium">
-                  {job.budget.type === 'fixed' ? `$${job.budget.fixed}` : `$${job.budget.min}-$${job.budget.max}/hr`}
+                  {job.budget?.type === 'fixed' ? `$${job.budget?.fixed}` : `$${job.budget?.min}-$${job.budget?.max}/hr`}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Duration</span>
-                <span className="font-medium">{job.duration.replace('-', ' ')}</span>
+                <span className="font-medium">{job.duration?.replace('-', ' ')}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Status</span>
@@ -428,12 +430,12 @@ const JobDetails = () => {
                   job.status === 'open' ? 'badge-success' :
                   job.status === 'in-progress' ? 'badge-warning' : 'badge-error'
                 }`}>
-                  {job.status.replace('-', ' ')}
+                  {job.status?.replace('-', ' ')}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Skills Required</span>
-                <span className="font-medium">{job.skillsRequired.length}</span>
+                <span className="font-medium">{job.skillsRequired?.length}</span>
               </div>
             </div>
           </div>

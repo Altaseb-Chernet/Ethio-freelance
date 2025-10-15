@@ -1,7 +1,10 @@
 // client/src/context/AuthContext.jsx
 import React, { createContext, useState, useContext, useEffect } from "react";
-import { api } from "../utils/api"; // ✅ already correct
-import axios from "axios"; // ✅ optional, only if used elsewhere
+import { api } from "../utils/api"; 
+import axios from "axios"; 
+import { auth, googleProvider } from "../firebase"; // Firebase config
+import { signInWithPopup } from "firebase/auth";
+
 
 const AuthContext = createContext();
 
@@ -106,6 +109,35 @@ export const AuthProvider = ({ children }) => {
     setUser((prev) => ({ ...prev, ...updates }));
   };
 
+
+  const loginWithGoogle = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const userFirebase = result.user;
+
+    const token = await userFirebase.getIdToken();
+
+    // Send Firebase user info to your backend
+    const response = await api.post("/auth/google", {
+      email: userFirebase.email,
+      name: userFirebase.displayName,
+      uid: userFirebase.uid,
+    });
+
+    const { user: userData, token: backendToken } = response.data.data;
+
+    // Store token and user in context/localStorage
+    localStorage.setItem("token", backendToken);
+    setToken(backendToken);
+    setUser(userData);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Google login failed", error);
+    return { success: false, message: error.message };
+  }
+};
+
   const value = {
     user,
     token,
@@ -116,6 +148,7 @@ export const AuthProvider = ({ children }) => {
     resendOTP,
     logout,
     updateUser,
+    loginWithGoogle, // ✅ add this
     isAuthenticated: !!user,
     isClient: user?.role === "client",
     isFreelancer: user?.role === "freelancer",

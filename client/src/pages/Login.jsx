@@ -5,6 +5,11 @@ import { useAuth } from '../context/AuthContext'
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react'
 
 const Login = () => {
+  const { login, loginWithGoogle } = useAuth(); // ✅ get both login functions
+  const navigate = useNavigate()
+  const location = useLocation()
+  const from = location.state?.from?.pathname || '/dashboard'
+
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -13,11 +18,15 @@ const Login = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const { login } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
-
-  const from = location.state?.from?.pathname || '/dashboard'
+  // Handle Google Login
+  const handleGoogleLogin = async () => {
+    const result = await loginWithGoogle();
+    if (result.success) {
+      navigate(from, { replace: true })
+    } else {
+      alert(result.message || "Google login failed")
+    }
+  }
 
   const handleChange = (e) => {
     setFormData(prev => ({
@@ -45,6 +54,7 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
+        {/* Header */}
         <div className="text-center">
           <Link to="/" className="inline-flex items-center space-x-3 mb-8">
             <div className="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -58,6 +68,7 @@ const Login = () => {
           </p>
         </div>
 
+        {/* Login Form */}
         <div className="card p-8">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
@@ -66,6 +77,7 @@ const Login = () => {
               </div>
             )}
 
+            {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
@@ -85,6 +97,7 @@ const Login = () => {
               </div>
             </div>
 
+            {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Password
@@ -111,6 +124,7 @@ const Login = () => {
               </div>
             </div>
 
+            {/* Remember & Forgot */}
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
@@ -123,16 +137,16 @@ const Login = () => {
                   Remember me
                 </label>
               </div>
-
               <div className="text-sm">
                 <Link
-                 to="/forgot-password"
+                  to="/forgot-password"
                   className="font-medium text-primary-600 hover:text-primary-500">
                   Forgot your password?
                 </Link>
               </div>
             </div>
 
+            {/* Sign In Button */}
             <button
               type="submit"
               disabled={loading}
@@ -151,6 +165,17 @@ const Login = () => {
               )}
             </button>
 
+            {/* Google Login Button */}
+           <button onClick={handleGoogleLogin}
+            className="w-full bg-white border border-gray-300 rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-gray-50 transition">
+            <img
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+              className="w-5 h-5" alt="Google"/>
+            <span className="text-gray-700 font-medium">Sign in with Google</span>
+           </button>
+
+
+            {/* Signup link */}
             <div className="text-center">
               <p className="text-sm text-gray-600">
                 Don't have an account?{' '}
