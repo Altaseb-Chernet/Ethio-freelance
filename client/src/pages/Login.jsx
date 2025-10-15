@@ -48,7 +48,7 @@ const Login = () => {
         <div className="text-center">
           <Link to="/" className="inline-flex items-center space-x-3 mb-8">
             <div className="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-lg">AI</span>
+              <span className="text-white font-bold text-lg">AL</span>
             </div>
             <span className="text-2xl font-bold text-gray-900">Ethio-freelance</span>
           </Link>
@@ -125,9 +125,11 @@ const Login = () => {
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
+                <Link
+                 to="/forgot-password"
+                  className="font-medium text-primary-600 hover:text-primary-500">
                   Forgot your password?
-                </a>
+                </Link>
               </div>
             </div>
 

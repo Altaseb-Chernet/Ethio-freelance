@@ -1,6 +1,7 @@
 // client/src/context/AuthContext.jsx
 import React, { createContext, useState, useContext, useEffect } from "react";
-import { api } from "../utils/api";
+import { api } from "../utils/api"; // ✅ already correct
+import axios from "axios"; // ✅ optional, only if used elsewhere
 
 const AuthContext = createContext();
 
@@ -18,11 +19,8 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token"));
 
   useEffect(() => {
-    if (token) {
-      fetchUser();
-    } else {
-      setLoading(false);
-    }
+    if (token) fetchUser();
+    else setLoading(false);
   }, [token]);
 
   const fetchUser = async () => {
@@ -55,49 +53,48 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-    const register = async (userData) => {
+  // ✅ FIXED register — uses your configured api instance
+  const register = async (userData) => {
     try {
-      const response = await axios.post('/api/auth/register', userData);
+      const response = await api.post("/auth/register", userData);
       return response.data;
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Registration failed'
+        message: error.response?.data?.message || "Registration failed",
       };
     }
   };
 
+  // ✅ FIXED OTP endpoints — use api instead of axios
   const verifyOTP = async (email, otp) => {
     try {
-      const response = await axios.post('/api/auth/verify-otp', { email, otp });
-      
+      const response = await api.post("/auth/verify-otp", { email, otp });
       if (response.data.success) {
         const { user: userData, token } = response.data.data;
-        localStorage.setItem('token', token);
+        localStorage.setItem("token", token);
         setUser(userData);
       }
-      
       return response.data;
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || 'OTP verification failed'
+        message: error.response?.data?.message || "OTP verification failed",
       };
     }
   };
 
   const resendOTP = async (email) => {
     try {
-      const response = await axios.post('/api/auth/resend-otp', { email });
+      const response = await api.post("/auth/resend-otp", { email });
       return response.data;
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Failed to resend OTP'
+        message: error.response?.data?.message || "Failed to resend OTP",
       };
     }
   };
-
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -115,6 +112,8 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     register,
+    verifyOTP,
+    resendOTP,
     logout,
     updateUser,
     isAuthenticated: !!user,
@@ -123,5 +122,8 @@ export const AuthProvider = ({ children }) => {
     isAdmin: user?.role === "admin",
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  );
 };
+

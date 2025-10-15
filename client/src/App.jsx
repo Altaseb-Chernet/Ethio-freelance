@@ -18,6 +18,8 @@ import FreelancerProfile from './pages/FreelancerProfile'
 import Messages from './pages/Messages'
 import Wallet from './pages/Wallet'
 import AdminPanel from './pages/AdminPanel'
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 
 
@@ -51,6 +53,8 @@ function App() {
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/wallet" element={<Wallet />} />
                 <Route path="/admin" element={<AdminPanel />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
               </Routes>
             </main>
             <Footer />
