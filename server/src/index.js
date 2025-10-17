@@ -5,6 +5,7 @@ const cors = require('cors');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 require('dotenv').config();
+const path = require('path');
 
 const app = express();
 const server = createServer(app);
@@ -30,9 +31,12 @@ const errorHandler = require('./utils/errorHandler');
 const logger = require('./utils/logger');
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/ai-freelance')
-  .then(() => logger.info('MongoDB connected successfully'))
-  .catch(err => logger.error('MongoDB connection error:', err));
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/ai-freelance', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => logger.info('MongoDB connected successfully'))
+.catch(err => logger.error('MongoDB connection error:', err));
 
 // Middleware
 app.use(cors({
@@ -58,6 +62,11 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Root route for health or info
+app.get('/', (req, res) => {
+  res.send('Backend is running! Use /api/... for API routes or /health for status.');
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
@@ -71,8 +80,9 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 if (process.env.NODE_ENV !== 'test') {
-server.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-});
-};
+  server.listen(PORT, () => {
+    logger.info(`Server running on port ${PORT}`);
+  });
+}
+
 module.exports = app;
