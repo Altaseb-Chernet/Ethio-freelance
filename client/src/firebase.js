@@ -4,7 +4,7 @@ import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBXkVYnp3qAvOCeyLfbPnxYabIjZOSaKA8",
-  authDomain: "ethio-freelance-bc5d2.firebaseapp.com",
+  authDomain: "ethio-freelance.vercel.app",
   projectId: "ethio-freelance-bc5d2",
   storageBucket: "ethio-freelance-bc5d2.appspot.com",
   messagingSenderId: "1020540637643",
