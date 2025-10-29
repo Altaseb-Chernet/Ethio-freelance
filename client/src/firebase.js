@@ -6,7 +6,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyBXkVYnp3qAvOCeyLfbPnxYabIjZOSaKA8",
   authDomain: "ethio-freelance-bc5d2.firebaseapp.com",
   projectId: "ethio-freelance-bc5d2",
-  storageBucket: "ethio-freelance-bc5d2.firebasestorage.app",
+  storageBucket: "ethio-freelance-bc5d2.appspot.com",
   messagingSenderId: "1020540637643",
   appId: "1:1020540637643:web:20041bd3a9a85b456d664e",
   measurementId: "G-VW2MRFSTLK"
