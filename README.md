@@ -105,11 +105,6 @@ Contributions are welcome! Suggested flow:
 4. Open a pull request explaining the change
 Please follow the code style and add tests for new logic.
 
-Suggested issues to add (examples)
-- Add profile picture upload with resize and CDN support
-- Implement payments and escrow workflow
-- Add real-time chat using WebSockets
-- Localization support (Amharic and English)
 
 License
 MIT — see LICENSE file for details.
@@ -117,10 +112,4 @@ MIT — see LICENSE file for details.
 Contact
 Project maintained by Altaseb-Chernet. Open an issue or pull request for improvements or questions.
 
-Screenshots & demo
-Add screenshots to /docs or the repo root and link them here. If you have a deployed demo, add the link under "Overview" for quick access.
 
-Enjoy exploring Ethio-Freelance — if you want, I can:
-- open a PR adding this README to the repository,
-- generate a CONTRIBUTING.md and ISSUE_TEMPLATE,
-- or help craft CI/CD deployment steps for a chosen provider.
