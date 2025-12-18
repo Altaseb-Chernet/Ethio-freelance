@@ -65,10 +65,19 @@ export const aiAPI = {
 }
 
 export const usersAPI = {
+  // existing user endpoints
   getProfile: (id) => api.get(`/users/${id}`),
   updateProfile: (data) => api.put('/users/profile', data),
   searchFreelancers: (params) => api.get('/users/search/freelancers', { params }),
+
+  // 🧠 add these admin endpoints
+  getAll: (params = {}) => api.get('/admin/users', { params }),
+  banUser: (id, reason = 'Violation of rules') => api.patch(`/admin/users/${id}/ban`, { reason }),
+  unbanUser: (id) => api.patch(`/admin/users/${id}/unban`),
+  getDashboard: () => api.get('/admin/dashboard'),
+  getFlagged: () => api.get('/admin/flagged'),
 }
+
 
 export const chatAPI = {
   getContracts: () => api.get('/chat/contracts'),
