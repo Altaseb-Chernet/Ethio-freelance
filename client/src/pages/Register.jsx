@@ -5,6 +5,9 @@ import { useAuth } from '../context/AuthContext'
 import { Eye, EyeOff, Mail, Lock, User, Briefcase, UserCheck, ArrowRight } from 'lucide-react'
 import OTPVerification from '../components/OTPVerification'
 
+
+  
+
 const Register = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -36,7 +39,8 @@ const Register = () => {
     setError('')
 
     const result = await register(formData)
-
+    // console.log("hello world");
+    
     if (result.success) {
       setPendingEmail(formData.email)
       setShowOTPVerification(true)
